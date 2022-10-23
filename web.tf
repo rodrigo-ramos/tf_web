@@ -1,25 +1,12 @@
 provider "aws" {
   region = var.region
 }
-terraform {
-  backend "s3" {
-    bucket = "example.com-remote-state-development"
-    key    = "terraform.tfstate"
-    region = "us-east-1"
-  }
-}
 
 module "vpc_basic" {
-  source        = "github.com/rodrigo-ramos/tfm_module_vpc.git"
+  source        = "github.com/rodrigo-ramos/tfm_vpc.git"
   name          = "web"
   cidr          = "10.0.0.0/16"
   public_subnet = "10.0.1.0/24"
-}
-
-module "remote_state" {
-  source      = "./s3bucketstate"
-  prefix      = var.prefix
-  environment = var.environment
 }
 
 resource "aws_instance" "web" {
@@ -29,7 +16,7 @@ resource "aws_instance" "web" {
   subnet_id     = module.vpc_basic.public_subnet_id
   private_ip    = var.instance_ips[count.index]
   user_data     = file("files/web_bootstrap.sh")
-  #associate_public_ip_address = true
+  associate_public_ip_address = true
 
   vpc_security_group_ids = [
     aws_security_group.web_host_sg.id,
