@@ -1,26 +1,24 @@
 provider "aws" {
-  region     = var.region
-  access_key = var.access_key
-  secret_key = var.secret_key
+  region = var.region
 }
 terraform {
   backend "s3" {
     bucket = "example.com-remote-state-development"
-    key =  "terraform.tfstate"
+    key    = "terraform.tfstate"
     region = "us-east-1"
   }
 }
 
 module "vpc_basic" {
-  source        = "github.com/turnbullpress/tf_vpc_basic.git?ref=v0.0.1"
+  source        = "github.com/rodrigo-ramos/tfm_module_vpc.git"
   name          = "web"
   cidr          = "10.0.0.0/16"
   public_subnet = "10.0.1.0/24"
 }
 
 module "remote_state" {
-  source = "./s3bucketstate"
-  prefix = var.prefix
+  source      = "./s3bucketstate"
+  prefix      = var.prefix
   environment = var.environment
 }
 
@@ -56,7 +54,7 @@ resource "aws_elb" "web" {
     lb_protocol       = "http"
   }
 
-  # The instances are registered automatically
+  # The instances are registereterraford automatically
   instances = aws_instance.web[*].id
 }
 
