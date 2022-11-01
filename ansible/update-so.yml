@@ -1,7 +1,0 @@
-# Update os
----
-  - hosts: webservers
-    become: true
-    tasks:
-      - name: update operating system packages
-        yum: name=* state=latest 
