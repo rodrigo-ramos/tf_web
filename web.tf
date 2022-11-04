@@ -8,14 +8,17 @@ module "vpc_basic" {
   cidr          = "10.0.0.0/16"
   public_subnet = "10.0.1.0/24"
 }
-
+resource "aws_key_pair" "key" {
+  key_name = var.key_name
+  public_key = file(var.public_key)
+}
 resource "aws_instance" "web" {
-  ami           = var.ami[var.region]
-  instance_type = var.instance_type
-  key_name      = var.key_name
-  subnet_id     = module.vpc_basic.public_subnet_id
-  private_ip    = var.instance_ips[count.index]
-  user_data     = file("files/web_bootstrap.sh")
+  ami                         = var.ami[var.region]
+  instance_type               = var.instance_type
+  key_name                    = aws_key_pair.key.key_name
+  subnet_id                   = module.vpc_basic.public_subnet_id
+  private_ip                  = var.instance_ips[count.index]
+  user_data                   = file("files/web_bootstrap.sh")
   associate_public_ip_address = true
 
   vpc_security_group_ids = [
@@ -27,6 +30,16 @@ resource "aws_instance" "web" {
   }
 
   count = length(var.instance_ips)
+
+  connection {
+    user        = "ec2-user"
+    private_key = file(var.private_key)
+    host = self.public_ip
+
+  }
+  provisioner "remote-exec" {
+    inline = ["echo $HOSTNAME"]
+  }
 }
 
 resource "aws_elb" "web" {

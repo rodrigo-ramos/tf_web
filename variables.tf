@@ -3,9 +3,8 @@ variable "region" {
   description = "Region in AWS"
 }
 variable "key_name" {
-  type        = string
-  description = "My key to access EC2 instances"
-
+  type = string
+  description = "Name of the key"
 }
 variable "ami" {
   type        = map(string)
@@ -21,4 +20,10 @@ variable "instance_ips" {
   type        = list(string)
   description = "The IPs for our instances"
   default     = ["10.0.1.20", "10.0.1.21"]
+}
+variable "public_key" {
+  description = "My public key"
+}
+variable "private_key" {
+  description = "My private key"
 }
